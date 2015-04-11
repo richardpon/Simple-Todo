@@ -96,10 +96,8 @@ public class MainActivity extends ActionBarActivity {
      * Read items from filesystem
      */
     private void readItems() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
         try {
-            items = new ArrayList<String>(FileUtils.readLines(todoFile));
+            items = new ArrayList<String>(FileUtils.readLines(getTodoFile()));
         } catch (IOException e) {
             items = new ArrayList<String>();
         }
@@ -109,13 +107,22 @@ public class MainActivity extends ActionBarActivity {
      * Write items to the filesystem
      */
     private void writeItems() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
         try {
-            FileUtils.writeLines(todoFile, items);
+            FileUtils.writeLines(getTodoFile(), items);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Get common File that stores todo list
+     * @return File
+     */
+    private File getTodoFile() {
+        File filesDir = getFilesDir();
+        File todoFile = new File(filesDir, "todo.txt");
+
+        return todoFile;
     }
 
 }
