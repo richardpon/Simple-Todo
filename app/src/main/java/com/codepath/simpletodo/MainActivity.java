@@ -1,7 +1,9 @@
 package com.codepath.simpletodo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.apache.commons.io.FileUtils;
 
@@ -18,9 +21,15 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private static final String TAG = "MainActivity";
+    private final int REQUEST_CODE = 20;
+
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +99,36 @@ public class MainActivity extends ActionBarActivity {
                     return true;
                 }
         });
+
+        lvItems.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
+
+                        Log.i(TAG, "\n\nClicking!!!\n\n");
+
+                        String itemText = items.get(pos);
+
+                        //launch the edit item activity
+                        launchEditItemActivity(pos, itemText);
+                    }
+                }
+
+        );
     }
+
+    private void launchEditItemActivity(int pos, String text) {
+        //Is there a difference to param 1 being MainActivity.this or this?
+        Intent i = new Intent(this, EditItemActivity.class);
+
+        //Add pos and id into the bundle
+        i.putExtra("position", pos);
+        i.putExtra("text", text);
+
+        startActivityForResult(i, REQUEST_CODE);
+    }
+
+
 
     /**
      * Read items from filesystem
@@ -123,6 +161,30 @@ public class MainActivity extends ActionBarActivity {
         File todoFile = new File(filesDir, "todo.txt");
 
         return todoFile;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            String text = data.getExtras().getString("text");
+            int position = data.getExtras().getInt("position");
+
+            Toast.makeText(this, "Updated "+text, Toast.LENGTH_SHORT).show();
+
+            updateItemWithNewText(text, position);
+        }
+    }
+
+    /**
+     * Updates item with given position and text
+     * @param text String
+     * @param postion int
+     */
+    private void updateItemWithNewText(String text, int position) {
+
+        items.set(position, text);
+
+        itemsAdapter.notifyDataSetChanged();
     }
 
 }

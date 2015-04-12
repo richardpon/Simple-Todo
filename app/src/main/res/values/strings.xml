@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">SimpleTodo</string>
 
+    <!-- Main Activity -->
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <!-- Edit Item  -->
+    <string name="title_activity_edit_item">Edit Item</string>
+    <string name="save_item">Save</string>
+
 </resources>
