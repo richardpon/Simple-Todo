@@ -25,8 +25,6 @@ public class EditItemActivity extends ActionBarActivity {
         populateEditText(text);
 
         itemPosition = getIntent().getIntExtra("position", 0);
-
-        Log.i(TAG, "\n\nposition is "+itemPosition+"\n\n");
     }
 
 

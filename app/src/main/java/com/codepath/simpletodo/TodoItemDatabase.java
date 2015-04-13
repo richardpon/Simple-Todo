@@ -27,7 +27,10 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    // Create Initial Tables
+
+    /**
+     * Creates initial table
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
 
@@ -49,6 +52,10 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Adds item to DB
+     * @param item item to add
+     */
     public void addTodoItem(TodoItem item) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -60,6 +67,11 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
         db.close();
     }
 
+    /**
+     * Gets a single item based upon id
+     * @param id    int item id
+     * @return      item with the given id
+     */
     public TodoItem getTodoItem(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -80,7 +92,10 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
         return item;
     }
 
-
+    /**
+     * Gets all items from DB
+     * @return list of items
+     */
     public List<TodoItem> getAllTodoItems() {
 
         List<TodoItem> todoItems = new ArrayList<TodoItem>();
@@ -103,7 +118,9 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
         return todoItems;
     }
 
-
+    /**
+     * @return total number of items
+     */
     public int getTodoItemCount() {
         String countQuery = "SELECT * FROM " + TABLE_TODO;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -113,6 +130,11 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
         return cursor.getCount();
     }
 
+    /**
+     * Updates an item
+     * @param item  item to update
+     * @return      int number of rows updated (should be 1)
+     */
     public int updateTodoItem(TodoItem item) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -127,6 +149,9 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
         return result;
     }
 
+    /**
+     * @param item  item to delete
+     */
     public void deleteTodoItem(TodoItem item) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -136,6 +161,9 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
         db.close();
     }
 
+    /**
+     * Deletes all items
+     */
     public void deleteAllItems() {
         List<TodoItem> allTodoItems = this.getAllTodoItems();
 
