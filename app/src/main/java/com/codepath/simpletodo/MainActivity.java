@@ -18,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -29,7 +30,11 @@ public class MainActivity extends ActionBarActivity {
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
 
-
+//    TodoItemDatabase db;
+//
+//    public void MainActivity() {
+//        this.db = new TodoItemDatabase(this);
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,8 +110,6 @@ public class MainActivity extends ActionBarActivity {
                     @Override
                     public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
 
-                        Log.i(TAG, "\n\nClicking!!!\n\n");
-
                         String itemText = items.get(pos);
 
                         //launch the edit item activity
@@ -134,23 +137,67 @@ public class MainActivity extends ActionBarActivity {
      * Read items from filesystem
      */
     private void readItems() {
-        try {
-            items = new ArrayList<String>(FileUtils.readLines(getTodoFile()));
-        } catch (IOException e) {
-            items = new ArrayList<String>();
+
+        //Read from filesystem
+//        try {
+//            items = new ArrayList<String>(FileUtils.readLines(getTodoFile()));
+//        } catch (IOException e) {
+//            items = new ArrayList<String>();
+//        }
+
+
+        //read items from DB
+        TodoItemDatabase db = new TodoItemDatabase(this);
+        //db.addTodoItem(new TodoItem("Get peas", 1));
+
+        List<TodoItem> todoItems = db.getAllTodoItems();
+
+        Log.i(TAG,"1");
+        Log.i(TAG,"reading items\n");
+        //Log.i(TAG,"count="+todoItems.size());
+
+        this.items = new ArrayList<String>();
+        for (TodoItem todoItem : todoItems) {
+            String log = "todoItem===id="+todoItem.getId() + " pos=" + todoItem.getPosition() + " body=" + todoItem.getBody();
+            Log.i(TAG, log);
+
+            String body = todoItem.getBody();
+            this.items.add(body);
         }
+
+
     }
 
     /**
-     * Write items to the filesystem
+     * Write items to persistent storage
+     * This actually deletes all items and resaves
      */
     private void writeItems() {
-        try {
-            FileUtils.writeLines(getTodoFile(), items);
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        //write all items to filesystem
+//        try {
+//            FileUtils.writeLines(getTodoFile(), items);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        //delete items from DB and then rewrite them all in the current order
+        //write all items to DB
+        TodoItemDatabase db = new TodoItemDatabase(this);
+
+
+        db.deleteAllItems();
+
+        int position = 1;
+        for (String itemText : this.items) {
+
+            db.addTodoItem(new TodoItem(itemText, position));
+            position++;
         }
+
     }
+
+
 
     /**
      * Get common File that stores todo list
@@ -172,6 +219,8 @@ public class MainActivity extends ActionBarActivity {
             Toast.makeText(this, "Updated "+text, Toast.LENGTH_SHORT).show();
 
             updateItemWithNewText(text, position);
+
+            this.writeItems();
         }
     }
 
