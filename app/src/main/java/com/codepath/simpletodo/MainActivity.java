@@ -12,12 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -29,8 +25,6 @@ public class MainActivity extends ActionBarActivity {
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +32,7 @@ public class MainActivity extends ActionBarActivity {
 
         lvItems = (ListView) findViewById(R.id.lvItems);
 
-        //read items from filesystem
+        //read items from DB
         readItems();
 
         itemsAdapter = new ArrayAdapter<String>(this,
@@ -72,6 +66,10 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Add item when user clicks the "add item" button
+     * @param v View
+     */
     public void onAddItem(View v) {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
         String itemText = etNewItem.getText().toString();
@@ -85,6 +83,8 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void setupListViewListener() {
+
+        // A long click deletes the item
         lvItems.setOnItemLongClickListener(
             new AdapterView.OnItemLongClickListener() {
                 @Override
@@ -100,12 +100,11 @@ public class MainActivity extends ActionBarActivity {
                 }
         });
 
+        // A regular click edits the item
         lvItems.setOnItemClickListener(
                 new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
-
-                        Log.i(TAG, "\n\nClicking!!!\n\n");
 
                         String itemText = items.get(pos);
 
@@ -117,6 +116,11 @@ public class MainActivity extends ActionBarActivity {
         );
     }
 
+    /**
+     * Launches the edit item activity
+     * @param pos   int position of the item being edited
+     * @param text  String text of the item being edited
+     */
     private void launchEditItemActivity(int pos, String text) {
         //Is there a difference to param 1 being MainActivity.this or this?
         Intent i = new Intent(this, EditItemActivity.class);
@@ -131,36 +135,41 @@ public class MainActivity extends ActionBarActivity {
 
 
     /**
-     * Read items from filesystem
+     * Read items from the DB
      */
     private void readItems() {
-        try {
-            items = new ArrayList<String>(FileUtils.readLines(getTodoFile()));
-        } catch (IOException e) {
-            items = new ArrayList<String>();
+
+        //read items from DB
+        TodoItemDatabase db = new TodoItemDatabase(this);
+
+        List<TodoItem> todoItems = db.getAllTodoItems();
+
+        this.items = new ArrayList<String>();
+        for (TodoItem todoItem : todoItems) {
+            String body = todoItem.getBody();
+            this.items.add(body);
         }
     }
 
     /**
-     * Write items to the filesystem
+     * Write items to persistent storage
+     * This actually deletes all items and resaves
      */
     private void writeItems() {
-        try {
-            FileUtils.writeLines(getTodoFile(), items);
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        //delete items from DB and then rewrite them all in the current order
+        //write all items to DB
+        TodoItemDatabase db = new TodoItemDatabase(this);
+
+        db.deleteAllItems();
+
+        int position = 1;
+        for (String itemText : this.items) {
+
+            db.addTodoItem(new TodoItem(itemText, position));
+            position++;
         }
-    }
 
-    /**
-     * Get common File that stores todo list
-     * @return File
-     */
-    private File getTodoFile() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-
-        return todoFile;
     }
 
     @Override
@@ -172,6 +181,8 @@ public class MainActivity extends ActionBarActivity {
             Toast.makeText(this, "Updated "+text, Toast.LENGTH_SHORT).show();
 
             updateItemWithNewText(text, position);
+
+            this.writeItems();
         }
     }
 
