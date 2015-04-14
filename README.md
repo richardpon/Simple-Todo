@@ -1,11 +1,21 @@
-# Simple-Todo
+This Android app is a simple todo list. It follows CodePath's [Intro to Android](http://courses.codepath.com/snippets/intro_to_android/prework.md)
 
- Simple Android Todo List App.
+Approximate Total Time Spent: 8 hours
 
-## Features
-1.  Add items quickly and easily on the main Activity using the EditText View on the main activity
-2. Delete items be pressing and holding on any item
-3. Edit items by simply tapping on any item
+Completed User Stories:
 
-## Bonus Features
-1. Items are persisted in an SQLite DB. Each item is stored with the text and its position in the list.   Whenever any item is deleted or an item is added, all items are deleted and then resaved into the DB. This makes it easy to maintain proper position of each item, the downside being that each item is rewritten every time an item is added or deleted.
+* [x] Required: User can add items using the EditText View and button at the bottom of the main activity
+* [x] Required: User can delete items by pressing and holding an any item
+* [x] Required: User can edit the text of an item by tapping an itemm entering new text, and saving
+* [x] Optional: Items are persisted in a SQLite DB.
+
+Notes:
+
+Items are persisted as a text-position pair. Whenever an item is added or deleted, all items are deleted from the DB and resaved. This approach makes it simple to maintain correct position of every item in the list. The tradeoff is efficiency.
+
+Walkthrough:
+
+![Video Walkthrough](SimpleTodo_Walkthrough.gif)
+
+GIF created with [LiceCap](http://www.cockos.com/licecap/)
+
