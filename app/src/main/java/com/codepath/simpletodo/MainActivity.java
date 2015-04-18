@@ -21,8 +21,8 @@ public class MainActivity extends ActionBarActivity {
     private static final String TAG = "MainActivity";
     private final int REQUEST_CODE = 20;
 
-    ArrayList<String> items;
-    ArrayAdapter<String> itemsAdapter;
+    ArrayList<TodoItem> items;
+    ArrayAdapter<TodoItem> itemsAdapter;
     ListView lvItems;
 
     @Override
@@ -32,11 +32,14 @@ public class MainActivity extends ActionBarActivity {
 
         lvItems = (ListView) findViewById(R.id.lvItems);
 
+        //debug
+        TodoItemDatabase db = new TodoItemDatabase(this);
+        //db.deleteAllItems();
+
         //read items from DB
         readItems();
 
-        itemsAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, items);
+        itemsAdapter = new TodoItemsAdapter(this, this.items);
 
         lvItems.setAdapter(itemsAdapter);
 
@@ -74,12 +77,16 @@ public class MainActivity extends ActionBarActivity {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
         String itemText = etNewItem.getText().toString();
 
-        itemsAdapter.add(itemText);
+        //calculate position of new item
+        int position = this.items.size() + 1;
+
+        //add new item to adapter
+        TodoItem newItem = new TodoItem(itemText, position);
+        itemsAdapter.add(newItem);
         etNewItem.setText("");
 
-        //write items to filesystem
-        writeItems();
-
+        //write new item to DB
+        this.writeItem(newItem);
     }
 
     private void setupListViewListener() {
@@ -93,8 +100,7 @@ public class MainActivity extends ActionBarActivity {
                     items.remove(pos);
                     itemsAdapter.notifyDataSetChanged();
 
-                    //write to filesystem
-                    writeItems();
+                    deleteItemAtPosition(pos);
 
                     return true;
                 }
@@ -106,10 +112,12 @@ public class MainActivity extends ActionBarActivity {
                     @Override
                     public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
 
-                        String itemText = items.get(pos);
+                        TodoItem item = items.get(pos);
+
+                        String itemText = item.getBody();
 
                         //launch the edit item activity
-                        launchEditItemActivity(pos, itemText);
+                        launchEditItemActivity(pos, itemText, item.getId());
                     }
                 }
 
@@ -120,14 +128,16 @@ public class MainActivity extends ActionBarActivity {
      * Launches the edit item activity
      * @param pos   int position of the item being edited
      * @param text  String text of the item being edited
+     * @param id    int item id
      */
-    private void launchEditItemActivity(int pos, String text) {
+    private void launchEditItemActivity(int pos, String text, int id) {
         //Is there a difference to param 1 being MainActivity.this or this?
         Intent i = new Intent(this, EditItemActivity.class);
 
         //Add pos and id into the bundle
         i.putExtra("position", pos);
         i.putExtra("text", text);
+        i.putExtra("id", id);
 
         startActivityForResult(i, REQUEST_CODE);
     }
@@ -135,41 +145,33 @@ public class MainActivity extends ActionBarActivity {
 
 
     /**
-     * Read items from the DB
+     * Read all items from the DB
      */
     private void readItems() {
 
         //read items from DB
         TodoItemDatabase db = new TodoItemDatabase(this);
 
-        List<TodoItem> todoItems = db.getAllTodoItems();
-
-        this.items = new ArrayList<String>();
-        for (TodoItem todoItem : todoItems) {
-            String body = todoItem.getBody();
-            this.items.add(body);
-        }
+        this.items = (ArrayList) db.getAllTodoItems();
     }
 
     /**
-     * Write items to persistent storage
-     * This actually deletes all items and resaves
+     * Writes a single item to the DB
+     * @param item TodoItem
      */
-    private void writeItems() {
-
-        //delete items from DB and then rewrite them all in the current order
-        //write all items to DB
+    private void writeItem(TodoItem item) {
         TodoItemDatabase db = new TodoItemDatabase(this);
 
-        db.deleteAllItems();
+        db.addTodoItem(item);
+    }
 
-        int position = 1;
-        for (String itemText : this.items) {
-
-            db.addTodoItem(new TodoItem(itemText, position));
-            position++;
-        }
-
+    /**
+     * Deletes item with given position
+     * @param position int
+     */
+    private void deleteItemAtPosition(int position) {
+        TodoItemDatabase db = new TodoItemDatabase(this);
+        db.deleteItemAtPosition(position);
     }
 
     @Override
@@ -177,12 +179,11 @@ public class MainActivity extends ActionBarActivity {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             String text = data.getExtras().getString("text");
             int position = data.getExtras().getInt("position");
+            int id = data.getExtras().getInt("id");
 
             Toast.makeText(this, "Updated "+text, Toast.LENGTH_SHORT).show();
 
-            updateItemWithNewText(text, position);
-
-            this.writeItems();
+            updateItemWithNewText(text, position, id);
         }
     }
 
@@ -190,12 +191,22 @@ public class MainActivity extends ActionBarActivity {
      * Updates item with given position and text
      * @param text String
      * @param postion int
+     * @param id int
      */
-    private void updateItemWithNewText(String text, int position) {
+    private void updateItemWithNewText(String text, int position, int id) {
 
-        items.set(position, text);
+        //create new item
+        TodoItem newItem = new TodoItem(text, position);
+        newItem.setId(id);
 
+        items.set(position, newItem);
         itemsAdapter.notifyDataSetChanged();
+
+        //update item in DB
+        TodoItemDatabase db = new TodoItemDatabase(this);
+        //TodoItem item = db.getTodoItem(id);
+        newItem.setBody(text);
+        db.updateTodoItem(newItem);
     }
 
 }

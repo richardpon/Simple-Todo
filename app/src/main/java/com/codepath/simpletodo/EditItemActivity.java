@@ -14,6 +14,7 @@ public class EditItemActivity extends ActionBarActivity {
 
     private static final String TAG = "MainActivity";
     private int itemPosition;
+    private int itemId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,7 @@ public class EditItemActivity extends ActionBarActivity {
         populateEditText(text);
 
         itemPosition = getIntent().getIntExtra("position", 0);
+        itemId = getIntent().getIntExtra("id", 0);
     }
 
 
@@ -66,6 +68,7 @@ public class EditItemActivity extends ActionBarActivity {
         Intent data = new Intent();
         data.putExtra("text", newItemText);
         data.putExtra("position", itemPosition);
+        data.putExtra("id", itemId);
 
         setResult(RESULT_OK, data);
         finish();

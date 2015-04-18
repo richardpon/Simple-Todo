@@ -5,11 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TodoItemDatabase extends SQLiteOpenHelper {
+
+    private static final String TAG = "TodoItemDatabase";
 
     // DB Info
     private static final int DATABASE_VERSION = 1;
@@ -89,8 +92,14 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
         TodoItem item = new TodoItem(cursor.getString(1), cursor.getInt(2));
         item.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ID)));
 
+        Log.i(TAG, "...");
+        Log.i(TAG, "...");
+        Log.i(TAG, "id="+item.getId()+" body="+item.getBody()+" position="+item.getPosition());
+
         return item;
     }
+
+
 
     /**
      * Gets a single item at the specified position
@@ -186,6 +195,20 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
 
         db.close();
     }
+
+    /**
+     * Delete item at given position
+     * @param position int
+     */
+    public void deleteItemAtPosition(int position) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.delete(TABLE_TODO, KEY_POSITION + " = ?",
+                new String[] {String.valueOf(position) });
+
+        db.close();
+    }
+
 
     /**
      * Deletes all items
