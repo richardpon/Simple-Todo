@@ -93,6 +93,32 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
     }
 
     /**
+     * Gets a single item at the specified position
+     * @param position int position of requested item
+     * @return TodoItem
+     */
+    public TodoItem getTodoItemAtPosition(int position) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_TODO,
+                new String[] {KEY_ID, KEY_BODY, KEY_POSITION},
+                KEY_POSITION + "= ?", new String[] { String.valueOf(position) },
+                null, null, "id ASC", "100"
+        );
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+
+        // create model
+        TodoItem item = new TodoItem(cursor.getString(1), cursor.getInt(2));
+        item.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ID)));
+
+        return item;
+    }
+
+
+    /**
      * Gets all items from DB
      * @return list of items
      */
