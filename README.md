@@ -11,13 +11,6 @@ Completed User Stories:
 * [x] Optional: Items displayed using a custom array adapter using View Holder Pattern
 * [x] Extras: Slight UI improvements
 
-Updates in submission #2:
-* Use of custom adapter for displaying items
-* Slight UI improvements such as
-  * Icon for App
-  * EditView view for adding new items is a hint
-* Updated how SQLite is used. Now, the position field is a relative position instead of the absolute position of the item in the list
-
 Walkthrough:
 
 ![Video Walkthrough](SimpleTodo_Walkthrough.gif)
