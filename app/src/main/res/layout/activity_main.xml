@@ -24,7 +24,9 @@
         android:layout_toLeftOf="@+id/btnAddItem"
         android:layout_toStartOf="@+id/btnAddItem"
         android:layout_below="@+id/lvItems"
-        android:text="Add Item" />
+        android:hint="Add Item"
+        android:textColorHint="#C0C0C0"
+        />
 
     <ListView
         android:layout_width="wrap_content"
