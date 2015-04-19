@@ -46,7 +46,7 @@ public class TodoItemsAdapter extends ArrayAdapter<TodoItem>{
         }
 
         // Populate data
-        viewHolder.position.setText(Integer.toString(item.getPosition()));
+        viewHolder.position.setText(Integer.toString(position + 1));
         viewHolder.body.setText(item.getBody());
 
         return convertView;

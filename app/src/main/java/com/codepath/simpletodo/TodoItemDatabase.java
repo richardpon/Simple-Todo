@@ -209,7 +209,6 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
         db.close();
     }
 
-
     /**
      * Deletes all items
      */
@@ -219,6 +218,22 @@ public class TodoItemDatabase extends SQLiteOpenHelper {
         for (TodoItem curItem : allTodoItems) {
             this.deleteTodoItem(curItem);
         }
+    }
+
+    /**
+     * Gets maximum position of all items
+     * @return int
+     */
+    public int getMaxPosition() {
+
+        String selectQuery = "SELECT MAX( " + KEY_POSITION + ")"
+                + " FROM " + TABLE_TODO;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        cursor.moveToFirst();
+        return cursor.getInt(0);
     }
 
 }
