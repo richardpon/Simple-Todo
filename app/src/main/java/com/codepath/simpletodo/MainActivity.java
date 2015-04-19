@@ -32,9 +32,11 @@ public class MainActivity extends ActionBarActivity {
 
         lvItems = (ListView) findViewById(R.id.lvItems);
 
+        //
         //debug
         TodoItemDatabase db = new TodoItemDatabase(this);
         //db.deleteAllItems();
+        //
 
         //read items from DB
         readItems();
@@ -78,7 +80,8 @@ public class MainActivity extends ActionBarActivity {
         String itemText = etNewItem.getText().toString();
 
         //calculate position of new item
-        int position = this.items.size() + 1;
+        TodoItemDatabase db = new TodoItemDatabase(this);
+        int position = db.getMaxPosition() + 1;
 
         //add new item to adapter
         TodoItem newItem = new TodoItem(itemText, position);
@@ -97,11 +100,8 @@ public class MainActivity extends ActionBarActivity {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> adapter,
                         View view, int pos, long id) {
-                    items.remove(pos);
-                    itemsAdapter.notifyDataSetChanged();
 
                     deleteItemAtPosition(pos);
-
                     return true;
                 }
         });
@@ -170,8 +170,15 @@ public class MainActivity extends ActionBarActivity {
      * @param position int
      */
     private void deleteItemAtPosition(int position) {
+
+        //Delete from DB
+        TodoItem item = items.get(position);
         TodoItemDatabase db = new TodoItemDatabase(this);
-        db.deleteItemAtPosition(position);
+        db.deleteTodoItem(item);
+
+        //remove from memory
+        items.remove(position);
+        itemsAdapter.notifyDataSetChanged();
     }
 
     @Override
