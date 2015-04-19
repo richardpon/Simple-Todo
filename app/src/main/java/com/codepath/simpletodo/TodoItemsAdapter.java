@@ -35,8 +35,6 @@ public class TodoItemsAdapter extends ArrayAdapter<TodoItem>{
         ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
-            //LayoutInflater inflater = LayoutInflater.from(getContext());
-            //convertView = inflater.inflate(R.layout.todo_item, parent, false);
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.todo_item, parent, false);
             viewHolder.body = (TextView) convertView.findViewById(R.id.tvBody);
             viewHolder.position = (TextView) convertView.findViewById(R.id.tvPosition);
